@@ -5,4 +5,5 @@
 * Api yazılacak
 * Veriler temizlenip kaydedilecek
 * Program başında çekilen veriler map üzerinde gösterilecek
-* Bunlara message brocker eklenecek
+* Bunlara message brocker eklenecek ( BELKİİİİİİİİ )
+* Kulllanıcı verilerini portresql'e al
