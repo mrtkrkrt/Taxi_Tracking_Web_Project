@@ -1,8 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+const fs = require("fs");
+const { parse } = require("csv-parse");
+
+let parser = parse({ columns: true }, function (err, records) {
+  console.log(records);
+});
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    // Get csv coord and save it.
+    for (let i = 0; i < 4; i++) {
+      let csvPath = "../api/vehicle_" + Number.toString(i + 1) + ".csv";
+
+      fs.createReadStream(__dirname + "/" + csvPath).pipe(parser);
+    }
+  }, []);
 
   async function postData(e) {
     e.preventDefault();
@@ -40,7 +55,7 @@ function Login() {
         }}
       >
         Login Page
-      </h1  >
+      </h1>
       <form
         onSubmit={postData}
         style={{
