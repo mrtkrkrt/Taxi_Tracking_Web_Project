@@ -1,13 +1,27 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const app = express();
 const User = require("./models/User");
-const bcrypt = require("bcrypt");
 const cors = require("cors");
+const mysql = require("mysql");
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "123456",
+  database: "nodemysql",
+});
+
+// Connect
+db.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log("MySql Connected...");
+});
 
 var MongoClient = require("mongodb").MongoClient;
 var url =
@@ -19,55 +33,84 @@ app.get("/", (req, res) => {
 
 app.post("/login", (req, res) => {
   let user;
+  let vehicleIdx = [];
 
   let promise = new Promise((resolve, reject) => {
-    MongoClient.connect(url, async function (err, db) {
-      if (err) throw err;
-      var dbo = db.db("myFirstDatabase");
-      dbo
-        .collection("user-data")
-        .findOne({ username: req.body.username }, function (err, result) {
-          if (err) reject("Database Hatası");
-          else resolve("Kullancıı Bulundu");
-          user = result;
-          console.log(user);
-          db.close();
-        });
+    let sql = "SELECT * FROM users WHERE username='" + req.body.username + "'";
+    let result = db.query(sql, (err, result) => {
+      if (err) reject("Mysql Hata!!!");
+      else resolve("Success");
+      user = result[0];
     });
-  });
-  promise
-    .then(async (message) => {
-      console.log(message);
+  })
+    .then((message) => {
       if (!user.username) {
         return { status: "error", error: "Invalid login" };
       }
 
-      if (req.body.password === user.password) {
-        MongoClient.connect(url, function (err, db) {
+      if (user.password === req.body.password) {
+        var today = new Date();
+        var date =
+          today.getFullYear() +
+          "-" +
+          (today.getMonth() + 1) +
+          "-" +
+          today.getDate();
+        var time =
+          today.getHours() +
+          ":" +
+          today.getMinutes() +
+          ":" +
+          today.getSeconds();
+        var dateTime = date + "_" + time;
+        console.log(dateTime);
+        sql =
+          "UPDATE users SET lastLogin='" +
+          dateTime +
+          "' WHERE username='" +
+          req.body.username +
+          "'";
+        db.query(sql, (err, result) => {
           if (err) throw err;
-          var dbo = db.db("myFirstDatabase");
-          var myquery = { username: user.username, password: user.password };
-          var newvalues = { $set: { lastLogin: new Date() } };
-          dbo
-            .collection("user-data")
-            .updateOne(myquery, newvalues, function (err, res) {
-              if (err) throw err;
-              console.log("1 document updated");
-              db.close();
-            });
+          console.log(result.affectedRows + " record(s) updated");
         });
-        return res.json({ status: "ok", user: JSON.stringify(user) });
+
+        let promise2 = new Promise((resolve, reject) => {
+          sql = "SELECT * FROM vehicles WHERE userId=" + user.id;
+          db.query(sql, (err, result) => {
+            if (err) reject("Vehicle Error!!!");
+            else {
+              result.map((vehicle) => {
+                vehicleIdx.push(vehicle.vehicleId);
+              });
+              resolve("Success!!!");
+            }
+          });
+        })
+          .then((message) => {
+            console.log(vehicleIdx);
+            return res.json({
+              status: "ok",
+              user: JSON.stringify(user),
+              idx: vehicleIdx,
+            });
+          })
+          .catch((message) => {
+            console.log(message);
+          });
       } else {
         return res.json({ status: "error", user: false });
       }
     })
-    .catch(async (message) => {
+    .catch((message) => {
       console.log(message);
     });
 });
 
 app.post("/dashboard", (req, res) => {
-  let coordResult;
+  let coordResult_1, coordResult_2;
+  let idx = req.body.vehicleIdx.split(",");
+  console.log(idx);
 
   let promise = new Promise((resolve, reject) => {
     MongoClient.connect(url, function (err, db) {
@@ -75,19 +118,48 @@ app.post("/dashboard", (req, res) => {
       var dbo = db.db("myFirstDatabase");
       dbo
         .collection("coordinates")
-        .find({ id: req.body.userId })
+        .find({ id: idx[0] })
         .toArray(function (err, result) {
           if (err) reject("DATABASE ERROR!!!");
-          coordResult = result
-          resolve("Success");
+          else {
+            coordResult_1 = result;
+            resolve("Success");
+          }
           db.close();
         });
     });
-  }).then((message) => {
-    return res.json({ status: "ok", coords: JSON.stringify(coordResult) });
-  }).catch((message) => {
-    return res.json({ status: "error", coords: false });
   })
+    .then((message) => {
+      let promise2 = new Promise((resolve, reject) => {
+        MongoClient.connect(url, function (err, db) {
+          if (err) throw err;
+          var dbo = db.db("myFirstDatabase");
+          dbo
+            .collection("coordinates")
+            .find({ id: idx[1] })
+            .toArray(function (err, result) {
+              if (err) reject("DATABASE ERROR!!!");
+              else {
+                coordResult_2 = result;
+                resolve("Success");
+              }
+              db.close();
+            });
+        });
+      }).then((message) => {
+        return res.json({
+          status: "ok",
+          coords_1: JSON.stringify(coordResult_1),
+          coords_2: JSON.stringify(coordResult_2)
+        });
+      }).catch((message) => {
+        console.log(message);
+        return res.json({ status: "error", coords_1: false, coords_2: false });
+      })
+    })
+    .catch((message) => {
+      return res.json({ status: "error", coords_1: false, coords_2: false });
+    });
 });
 
 app.listen(3000, () => {
