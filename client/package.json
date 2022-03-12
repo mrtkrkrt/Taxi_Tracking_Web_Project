@@ -16,6 +16,7 @@
     "fs": "^0.0.1-security",
     "google-map-react": "^2.1.10",
     "jsonwebtoken": "^8.5.1",
+    "latlng": "^1.0.0",
     "mongoose": "^6.2.4",
     "node-csv": "^0.1.2",
     "react": "^17.0.2",

@@ -66,6 +66,30 @@ app.post("/login", (req, res) => {
     });
 });
 
+app.post("/dashboard", (req, res) => {
+  let coordResult;
+
+  let promise = new Promise((resolve, reject) => {
+    MongoClient.connect(url, function (err, db) {
+      if (err) throw err;
+      var dbo = db.db("myFirstDatabase");
+      dbo
+        .collection("coordinates")
+        .find({ id: req.body.userId })
+        .toArray(function (err, result) {
+          if (err) reject("DATABASE ERROR!!!");
+          coordResult = result
+          resolve("Success");
+          db.close();
+        });
+    });
+  }).then((message) => {
+    return res.json({ status: "ok", coords: JSON.stringify(coordResult) });
+  }).catch((message) => {
+    return res.json({ status: "error", coords: false });
+  })
+});
+
 app.listen(3000, () => {
   console.log("Server started on 3000 port");
 });

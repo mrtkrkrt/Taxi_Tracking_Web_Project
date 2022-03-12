@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "google-maps-react": "^2.0.6",
-    "mongodb": "^4.4.1"
-  }
-}
