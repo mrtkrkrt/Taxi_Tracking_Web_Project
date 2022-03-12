@@ -21,6 +21,7 @@ function Login() {
     const data = await response.json();
 
     if (data.user) {
+      localStorage.setItem("idx", data.idx);
       localStorage.setItem("token", data.user);
       alert("Login successful");
       window.location.href = "/dashboard";

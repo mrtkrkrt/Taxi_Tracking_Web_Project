@@ -22,7 +22,7 @@ const position = {
   lng: -122.214,
 };
 
-function getMarkers(coords) {
+function getMarkers(coords, path) {
   let content = [];
   if (coords.length > 30) {
     for (let i = 0; i < 30; i++) {
@@ -33,6 +33,7 @@ function getMarkers(coords) {
             lat: parseFloat(coords[i].lat),
             lng: parseFloat(coords[i].lng),
           }}
+          icon={path}
         ></Marker>
       );
     }
@@ -42,11 +43,14 @@ function getMarkers(coords) {
 
 const Dashboard = () => {
   const a = ["1"];
-  const [coords, setCoords] = useState([]);
-  const [temp, setTemp] = useState([]);
+  const [coords_1, setCoords_1] = useState([]);
+  const [coords_2, setCoords_2] = useState([]);
   const loggedUser = JSON.parse(localStorage.getItem("token"));
+  const vehicleIdx = localStorage.getItem("idx");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(async () => {
+    console.log(loggedUser);
     // get data and set
     const response = await fetch("http://localhost:3000/dashboard", {
       method: "POST",
@@ -54,14 +58,13 @@ const Dashboard = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: loggedUser.id,
+        vehicleIdx: vehicleIdx,
       }),
     });
 
     const data = await response.json();
-    console.log(JSON.parse(data.coords)[0]);
-    setCoords(JSON.parse(data.coords));
-    setTemp(coords.splice(30));
+    setCoords_1(JSON.parse(data.coords_1));
+    setCoords_2(JSON.parse(data.coords_2));
   }, []);
 
   return (
@@ -79,7 +82,10 @@ const Dashboard = () => {
           center={center}
           zoom={5}
         >
-          <>{getMarkers(coords)}</>
+          <>
+            {getMarkers(coords_1, "http://maps.google.com/mapfiles/ms/icons/red-dot.png")}
+            {getMarkers(coords_2, "http://maps.google.com/mapfiles/ms/icons/blue-dot.png")}
+          </>
         </GoogleMap>
       </LoadScript>
       <script src="http://maps.googleapis.com/maps/AIzaSyC_nS2IqNzSJVzHroRnFoOmRbqPRiM-k2Q/js?sensor=false"></script>

@@ -16,6 +16,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.4",
-    "nodemon": "^2.0.15"
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.15",
+    "pg": "^8.7.3"
   }
 }
