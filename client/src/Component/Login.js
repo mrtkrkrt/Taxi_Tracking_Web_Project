@@ -26,7 +26,13 @@ function Login() {
       alert("Login successful");
       window.location.href = "/dashboard";
     } else {
+      console.log(localStorage.getItem("attempt"));
       alert("Please check your username and password");
+      localStorage.setItem("attempt", Number(localStorage.getItem("attempt")) + 1);
+      if (localStorage.getItem("attempt") == 3) {
+        // Three times wrong login attempt situation
+        alert("3 kez yanlış giriş yaptınız!!!");
+      }
     }
   }
 
