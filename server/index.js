@@ -38,16 +38,14 @@ app.post("/login", (req, res) => {
   let promise = new Promise((resolve, reject) => {
     let sql = "SELECT * FROM users WHERE username='" + req.body.username + "'";
     let result = db.query(sql, (err, result) => {
+      if (result.length > 0) {
+        resolve("Success");
+        user = result[0];
+      } else reject("Boş Sonuç");
       if (err) reject("Mysql Hata!!!");
-      else resolve("Success");
-      user = result[0];
     });
   })
     .then((message) => {
-      if (!user.username) {
-        return { status: "error", error: "Invalid login" };
-      }
-
       if (user.password === req.body.password) {
         var today = new Date();
         var date =
@@ -78,13 +76,15 @@ app.post("/login", (req, res) => {
         let promise2 = new Promise((resolve, reject) => {
           sql = "SELECT * FROM vehicles WHERE userId=" + user.id;
           db.query(sql, (err, result) => {
-            if (err) reject("Vehicle Error!!!");
-            else {
+            if (result.length > 0) {
               result.map((vehicle) => {
                 vehicleIdx.push(vehicle.vehicleId);
               });
               resolve("Success!!!");
+            }else{
+              reject("Boş Sonuç");
             }
+            if(err) reject("Database Hata")
           });
         })
           .then((message) => {
@@ -97,6 +97,7 @@ app.post("/login", (req, res) => {
           })
           .catch((message) => {
             console.log(message);
+            return res.json({ status: "error", user: false });
           });
       } else {
         return res.json({ status: "error", user: false });
@@ -104,6 +105,7 @@ app.post("/login", (req, res) => {
     })
     .catch((message) => {
       console.log(message);
+      return res.json({ status: "error", user: false });
     });
 });
 
@@ -146,16 +148,22 @@ app.post("/dashboard", (req, res) => {
               db.close();
             });
         });
-      }).then((message) => {
-        return res.json({
-          status: "ok",
-          coords_1: JSON.stringify(coordResult_1),
-          coords_2: JSON.stringify(coordResult_2)
-        });
-      }).catch((message) => {
-        console.log(message);
-        return res.json({ status: "error", coords_1: false, coords_2: false });
       })
+        .then((message) => {
+          return res.json({
+            status: "ok",
+            coords_1: JSON.stringify(coordResult_1),
+            coords_2: JSON.stringify(coordResult_2),
+          });
+        })
+        .catch((message) => {
+          console.log(message);
+          return res.json({
+            status: "error",
+            coords_1: false,
+            coords_2: false,
+          });
+        });
     })
     .catch((message) => {
       return res.json({ status: "error", coords_1: false, coords_2: false });

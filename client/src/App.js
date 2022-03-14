@@ -6,6 +6,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   const [data, setData] = useState("");
 
+  useEffect(() => {
+    localStorage.setItem("attempt", 0);
+  }, []);
+
   return (
     <div className="App">
       <div>
