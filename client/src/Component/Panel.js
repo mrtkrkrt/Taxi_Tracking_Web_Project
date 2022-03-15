@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -42,9 +43,11 @@ function getMarkers(coords, path) {
 }
 
 const Dashboard = () => {
-  const a = ["1"];
+  const navigate = useNavigate();
   const [coords_1, setCoords_1] = useState([]);
   const [coords_2, setCoords_2] = useState([]);
+  const [startHour, setStartHour] = useState("");
+  const [endHour, setEndHour] = useState("");
   const loggedUser = JSON.parse(localStorage.getItem("token"));
   const vehicleIdx = localStorage.getItem("idx");
 
@@ -67,13 +70,19 @@ const Dashboard = () => {
     setCoords_2(JSON.parse(data.coords_2));
   }, []);
 
+  const onChangeStartInput = (e) => {
+    setStartHour(e.target.value);
+  };
+
+  const onChangeEndInput = (e) => {
+    setEndHour(e.target.value);
+  };
+
   return (
     <div
       style={{
-        display: "flex",
+        display: "grid",
         justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
       }}
     >
       <LoadScript googleMapsApiKey="AIzaSyC_nS2IqNzSJVzHroRnFoOmRbqPRiM-k2Q">
@@ -83,12 +92,40 @@ const Dashboard = () => {
           zoom={5}
         >
           <>
-            {getMarkers(coords_1, "http://maps.google.com/mapfiles/ms/icons/red-dot.png")}
-            {getMarkers(coords_2, "http://maps.google.com/mapfiles/ms/icons/blue-dot.png")}
+            {getMarkers(
+              coords_1,
+              "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            )}
+            {getMarkers(
+              coords_2,
+              "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            )}
           </>
         </GoogleMap>
       </LoadScript>
-      <script src="http://maps.googleapis.com/maps/AIzaSyC_nS2IqNzSJVzHroRnFoOmRbqPRiM-k2Q/js?sensor=false"></script>
+      <div
+        style={{
+          display: "grid",
+          justifyContent: "center",
+        }}
+      >
+        <button onClick={() => navigate("/v")}>Mavi Araç</button>
+        <button>Kırmızı Araç</button>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          justifyContent: "center",
+        }}
+      >
+        <form>
+          <input
+            placeholder="Başlangıç Saati"
+            onChange={onChangeStartInput}
+          ></input>
+          <input placeholder="Bitiş Saati" onChange={onChangeEndInput}></input>
+        </form>
+      </div>
     </div>
   );
 };
