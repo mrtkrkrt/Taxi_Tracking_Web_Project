@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Login from "./Component/Login";
 import Dashboard from "./Component/Panel";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Vehicle from "./Component/Vehicle";
 
 function App() {
   const [data, setData] = useState("");
@@ -17,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/vehicle" element={<Vehicle />} />
           </Routes>
         </BrowserRouter>
       </div>
