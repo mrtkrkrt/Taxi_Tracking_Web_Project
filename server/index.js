@@ -61,7 +61,6 @@ app.post("/login", (req, res) => {
           ":" +
           today.getSeconds();
         var dateTime = date + "_" + time;
-        console.log(dateTime);
         sql =
           "UPDATE users SET lastLogin='" +
           dateTime +
@@ -81,14 +80,13 @@ app.post("/login", (req, res) => {
                 vehicleIdx.push(vehicle.vehicleId);
               });
               resolve("Success!!!");
-            }else{
+            } else {
               reject("Boş Sonuç");
             }
-            if(err) reject("Database Hata")
+            if (err) reject("Database Hata");
           });
         })
           .then((message) => {
-            console.log(vehicleIdx);
             return res.json({
               status: "ok",
               user: JSON.stringify(user),
@@ -168,6 +166,27 @@ app.post("/dashboard", (req, res) => {
     .catch((message) => {
       return res.json({ status: "error", coords_1: false, coords_2: false });
     });
+});
+
+app.post("/logout", (req, res) => {
+  const user = req.body.user;
+  var today = new Date();
+  var date =
+    today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+  var time =
+    today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date + "_" + time;
+  let sql =
+    "UPDATE users SET lastLogout='" +
+    dateTime +
+    "' WHERE username='" +
+    user.username +
+    "'";
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log(result.affectedRows + " record(s) updated");
+  });
+  return res.json({ status: "ok"});
 });
 
 app.listen(3000, () => {
