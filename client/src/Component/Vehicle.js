@@ -54,8 +54,19 @@ function Vehicle() {
   };
 
   return (
-    <div>
-      <button onClick={() => {logOut()}}>ÇIKIŞ YAP</button>
+    <div
+      style={{
+        display: "grid",
+        justifyContent: "center",
+      }}
+    >
+      <button
+        onClick={() => {
+          logOut();
+        }}
+      >
+        ÇIKIŞ YAP
+      </button>
       <LoadScript googleMapsApiKey="AIzaSyC_nS2IqNzSJVzHroRnFoOmRbqPRiM-k2Q">
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
