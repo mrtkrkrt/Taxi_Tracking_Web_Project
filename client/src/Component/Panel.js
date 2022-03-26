@@ -209,7 +209,7 @@ const Dashboard = () => {
       >
         ÇIKIŞ YAP
       </button>
-      <LoadScript googleMapsApiKey="AIzaSyC_nS2IqNzSJVzHroRnFoOmRbqPRiM-k2Q">
+      <LoadScript googleMapsApiKey="YOUR_MAP_API_KEY">
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
